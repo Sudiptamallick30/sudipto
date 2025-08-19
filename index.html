@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Drag Papers ❤️</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Short+Stack&family=Homemade+Apple&family=Zeyada&display=swap" rel="stylesheet">
+  <style>
+    body {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      background-size: cover;
+      background-image: url("https://www.psdgraphics.com/wp-content/uploads/2022/01/white-math-paper-texture.jpg");
+      background-position: center center;
+      overflow: hidden;
+    }
+    .paper {
+      background-image: url("https://i0.wp.com/textures.world/wp-content/uploads/2018/10/2-Millimeter-Paper-Background-copy.jpg?ssl=1");
+      background-size: 500px;
+      background-position: center center;
+      padding: 20px 100px;
+      transform: rotateZ(-5deg);
+      box-shadow: 1px 15px 20px rgba(0,0,0,0.5);
+      position: absolute;
+      cursor: grab;
+      touch-action: none;
+      transition: none;
+      max-width: 90vw;
+    }
+    .paper:active {
+      cursor: grabbing;
+    }
+    .paper.heart {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      padding: 0;
+      border-radius: 50%;
+    }
+    .paper.image {
+      padding: 10px;
+    }
+    .paper.image p {
+      font-size: 30px;
+      margin: 0;
+    }
+    img {
+      max-height: 200px;
+      width: 100%;
+      user-select: none;
+      pointer-events: none;
+    }
+    .paper.heart::after {
+      content: "";
+      background-image: url('https://cdn.pixabay.com/photo/2016/03/31/19/25/cartoon-1294994__340.png');
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background-size: 150px;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: 0.6;
+    }
+    p {
+      font-family: 'Zeyada', cursive;
+      font-size: 50px;
+      color: rgb(0,0,100);
+      opacity: 0.75;
+      user-select: none;
+      filter: drop-shadow(2px 1.5px 1px rgba(0,0,105,0.9));
+      margin: 0;
+      text-align: center;
+    }
+    @media (max-width: 600px) {
+      .paper {
+        padding: 15px 40px;
+      }
+      p {
+        font-size: 30px;
+      }
+      img {
+        max-height: 150px;
+      }
+      .paper.heart {
+        width: 150px;
+        height: 150px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="paper heart"></div>
+
+  <div class="paper image">
+    <p>You look so sweet</p>
+    <p>I like you 😍</p>
+    <img src="bablu.jpg" alt="photo1"/>
+  </div>
+
+  <div class="paper image">
+    <p>You are so preety</p>
+    <img src="Sohika.jpg" alt="photo2"/>
+  </div>
+
+  <div class="paper image">
+    <p>How can be </p>
+    <p>someone so cute ❤️</p>
+    <img src="Mallick.jpg" alt="photo3"/>
+  </div>
+
+  <div class="paper red">
+    <p class="p1">and My favorite Person</p>
+    <p class="p2"> 😍</p>
+  </div>
+
+  <div class="paper">
+    <p class="p1">You are Cute</p>
+    <p class="p1">Amazing <span style="color: red;">❤️</span></p>
+  </div>
+
+  <div class="paper">
+    <p class="p1">Drag the papers to move!</p>
+  </div>
+
+  <script>
+    let highestZ = 1;
+
+    class Paper {
+      holdingPaper = false;
+      rotating = false;
+
+      mouseX = 0; mouseY = 0;
+      prevMouseX = 0; prevMouseY = 0;
+      velX = 0; velY = 0;
+
+      currentPaperX = 0; currentPaperY = 0;
+      rotation = Math.random() * 30 - 15;
+
+      inertiaFrame;
+
+      init(paper) {
+        const updateTransform = () => {
+          paper.style.transform =
+            `translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px) rotateZ(${this.rotation}deg)`;
+        };
+
+        const applyInertia = () => {
+          this.velX *= 0.9;
+          this.velY *= 0.9;
+          this.currentPaperX += this.velX;
+          this.currentPaperY += this.velY;
+          updateTransform();
+
+          if (Math.abs(this.velX) > 0.5 || Math.abs(this.velY) > 0.5) {
+            this.inertiaFrame = requestAnimationFrame(applyInertia);
+          }
+        };
+
+        // --- Desktop Drag ---
+        document.addEventListener('mousemove', (e) => {
+          this.mouseX = e.clientX;
+          this.mouseY = e.clientY;
+          this.velX = this.mouseX - this.prevMouseX;
+          this.velY = this.mouseY - this.prevMouseY;
+
+          if (this.holdingPaper && !this.rotating) {
+            this.currentPaperX += this.velX;
+            this.currentPaperY += this.velY;
+            updateTransform();
+          }
+          this.prevMouseX = this.mouseX;
+          this.prevMouseY = this.mouseY;
+        });
+
+        paper.addEventListener('mousedown', (e) => {
+          if (this.holdingPaper) return;
+          cancelAnimationFrame(this.inertiaFrame);
+
+          this.holdingPaper = true;
+          paper.style.zIndex = highestZ++;
+          this.prevMouseX = e.clientX;
+          this.prevMouseY = e.clientY;
+
+          if (e.button === 2) this.rotating = true;
+        });
+
+        window.addEventListener('mouseup', () => {
+          if (this.holdingPaper && !this.rotating) {
+            applyInertia();
+          }
+          this.holdingPaper = false;
+          this.rotating = false;
+        });
+
+        // --- Touch Support ---
+        paper.addEventListener('touchstart', (e) => {
+          cancelAnimationFrame(this.inertiaFrame);
+          this.holdingPaper = true;
+          paper.style.zIndex = highestZ++;
+
+          if (e.touches.length === 1) {
+            this.prevMouseX = e.touches[0].clientX;
+            this.prevMouseY = e.touches[0].clientY;
+          }
+        }, {passive: false});
+
+        paper.addEventListener('touchmove', (e) => {
+          if (!this.holdingPaper) return;
+
+          if (e.touches.length === 1 && !this.rotating) {
+            const touch = e.touches[0];
+            this.velX = touch.clientX - this.prevMouseX;
+            this.velY = touch.clientY - this.prevMouseY;
+            this.currentPaperX += this.velX;
+            this.currentPaperY += this.velY;
+            updateTransform();
+            this.prevMouseX = touch.clientX;
+            this.prevMouseY = touch.clientY;
+          }
+
+          if (e.touches.length === 2) {
+            this.rotating = true;
+            const dx = e.touches[1].clientX - e.touches[0].clientX;
+            const dy = e.touches[1].clientY - e.touches[0].clientY;
+            const angle = Math.atan2(dy, dx);
+            this.rotation = angle * 180 / Math.PI;
+            updateTransform();
+          }
+        }, {passive: false});
+
+        paper.addEventListener('touchend', (e) => {
+          if (e.touches.length === 0) {
+            this.holdingPaper = false;
+            this.rotating = false;
+            applyInertia();
+          }
+        });
+      }
+    }
+
+    document.querySelectorAll('.paper').forEach(paperEl => {
+      new Paper().init(paperEl);
+    });
+  </script>
+</body>
+</html>
